@@ -3,7 +3,8 @@
 #endif
 #define _smlib_included
 
-#define SMLIB_VERSION "0.9.7"
+#define SMLIB_VERSION          "1.0.0"
+#define SMLIB_VERSION_CODE     10000
 
 #include <smlib/general>
 
@@ -22,7 +23,6 @@
 #include <smlib/game>
 #include <smlib/math>
 #include <smlib/menus>
-//#include <smlib/pluginmanager>
 #include <smlib/server>
 #include <smlib/strings>
 #include <smlib/sql>

@@ -10,7 +10,6 @@
 /**
  * Gets the Base name of a path.
  * Examples:
- * blub.txt -> "blub.txt"
  * /sourcemod/extensions/example.ext.so -> "example.ext.so"
  *
  * @param path			File path
@@ -18,14 +17,14 @@
  * @param size			Size of string buffer
  * @noreturn
  */
-stock bool:File_GetBaseName(const String:path[], String:buffer[], size)
+stock void File_GetBaseName(const char[] path, char[] buffer, int size)
 {
 	if (path[0] == '\0') {
 		buffer[0] = '\0';
 		return;
 	}
 
-	new pos_start = FindCharInString(path, '/', true);
+	int pos_start = FindCharInString(path, '/', true);
 
 	if (pos_start == -1) {
 		pos_start = FindCharInString(path, '\\', true);
@@ -48,14 +47,14 @@ stock bool:File_GetBaseName(const String:path[], String:buffer[], size)
  * @param size			Size of string buffer
  * @noreturn
  */
-stock bool:File_GetDirName(const String:path[], String:buffer[], size)
+stock void File_GetDirName(const char[] path, char[] buffer, int size)
 {
 	if (path[0] == '\0') {
 		buffer[0] = '\0';
 		return;
 	}
 
-	new pos_start = FindCharInString(path, '/', true);
+	int pos_start = FindCharInString(path, '/', true);
 
 	if (pos_start == -1) {
 		pos_start = FindCharInString(path, '\\', true);
@@ -80,7 +79,7 @@ stock bool:File_GetDirName(const String:path[], String:buffer[], size)
  * @param size			Size of string buffer
  * @noreturn
  */
-stock bool:File_GetFileName(const String:path[], String:buffer[], size)
+stock void File_GetFileName(const char[] path, char[] buffer, int size)
 {
 	if (path[0] == '\0') {
 		buffer[0] = '\0';
@@ -89,7 +88,7 @@ stock bool:File_GetFileName(const String:path[], String:buffer[], size)
 
 	File_GetBaseName(path, buffer, size);
 
-	new pos_ext = FindCharInString(buffer, '.', true);
+	int pos_ext = FindCharInString(buffer, '.', true);
 
 	if (pos_ext != -1) {
 		buffer[pos_ext] = '\0';
@@ -107,9 +106,9 @@ stock bool:File_GetFileName(const String:path[], String:buffer[], size)
  * @param size			Max length of string buffer
  * @noreturn
  */
-stock File_GetExtension(const String:path[], String:buffer[], size)
+stock void File_GetExtension(const char[] path, char[] buffer, int size)
 {
-	new extpos = FindCharInString(path, '.', true);
+	int extpos = FindCharInString(path, '.', true);
 
 	if (extpos == -1) {
 		buffer[0] = '\0';
@@ -136,8 +135,8 @@ stock File_GetExtension(const String:path[], String:buffer[], size)
  */
 
 // Damn you SourcePawn :( I didn't want to
-new String:_smlib_empty_twodimstring_array[][] = { { '\0' } };
-stock File_AddToDownloadsTable(const String:path[], bool:recursive=true, const String:ignoreExts[][]=_smlib_empty_twodimstring_array, size=0)
+char _smlib_empty_twodimstring_array[][] = { { '\0' } };
+stock void File_AddToDownloadsTable(const char[] path, bool recursive=true, const char[][] ignoreExts=_smlib_empty_twodimstring_array, int size=0)
 {
 	if (path[0] == '\0') {
 		return;
@@ -145,7 +144,7 @@ stock File_AddToDownloadsTable(const String:path[], bool:recursive=true, const S
 
 	if (FileExists(path)) {
 
-		new String:fileExtension[5];
+		char fileExtension[5];
 		File_GetExtension(path, fileExtension, sizeof(fileExtension));
 
 		if (StrEqual(fileExtension, "bz2", false) || StrEqual(fileExtension, "ztmp", false)) {
@@ -156,7 +155,7 @@ stock File_AddToDownloadsTable(const String:path[], bool:recursive=true, const S
 			return;
 		}
 
-		decl String:path_new[PLATFORM_MAX_PATH];
+		char path_new[PLATFORM_MAX_PATH];
 		strcopy(path_new, sizeof(path_new), path);
 		ReplaceString(path_new, sizeof(path_new), "//", "/");
 
@@ -164,8 +163,8 @@ stock File_AddToDownloadsTable(const String:path[], bool:recursive=true, const S
 	}
 	else if (recursive && DirExists(path)) {
 
-		decl String:dirEntry[PLATFORM_MAX_PATH];
-		new Handle:__dir = OpenDirectory(path);
+		char dirEntry[PLATFORM_MAX_PATH];
+		Handle __dir = OpenDirectory(path);
 
 		while (ReadDirEntry(__dir, dirEntry, sizeof(dirEntry))) {
 
@@ -181,21 +180,20 @@ stock File_AddToDownloadsTable(const String:path[], bool:recursive=true, const S
 	}
 	else if (FindCharInString(path, '*', true)) {
 
-		new String:fileExtension[4];
+		char fileExtension[4];
 		File_GetExtension(path, fileExtension, sizeof(fileExtension));
 
 		if (StrEqual(fileExtension, "*")) {
 
-			decl
-				String:dirName[PLATFORM_MAX_PATH],
-				String:fileName[PLATFORM_MAX_PATH],
-				String:dirEntry[PLATFORM_MAX_PATH];
+			char dirName[PLATFORM_MAX_PATH],
+				 fileName[PLATFORM_MAX_PATH],
+				 dirEntry[PLATFORM_MAX_PATH];
 
 			File_GetDirName(path, dirName, sizeof(dirName));
 			File_GetFileName(path, fileName, sizeof(fileName));
 			StrCat(fileName, sizeof(fileName), ".");
 
-			new Handle:__dir = OpenDirectory(dirName);
+			Handle __dir = OpenDirectory(dirName);
 			while (ReadDirEntry(__dir, dirEntry, sizeof(dirEntry))) {
 
 				if (StrEqual(dirEntry, ".") || StrEqual(dirEntry, "..")) {
@@ -224,19 +222,19 @@ stock File_AddToDownloadsTable(const String:path[], bool:recursive=true, const S
  * @param path			Path to the .txt file.
  * @noreturn
  */
-stock File_ReadDownloadList(const String:path[])
+stock void File_ReadDownloadList(const char[] path)
 {
-	new Handle:file = OpenFile(path, "r");
+	Handle file = OpenFile(path, "r");
 
 	if (file  == INVALID_HANDLE) {
 		return;
 	}
 
-	new String:buffer[PLATFORM_MAX_PATH];
+	char buffer[PLATFORM_MAX_PATH];
 	while (!IsEndOfFile(file)) {
 		ReadFileLine(file, buffer, sizeof(buffer));
 
-		new pos;
+		int pos;
 		pos = StrContains(buffer, "//");
 		if (pos != -1) {
 			buffer[pos] = '\0';
@@ -272,9 +270,9 @@ stock File_ReadDownloadList(const String:path[])
  * @param setFailState	If true, it sets the failstate if the translations file doesn't exist
  * @return				True on success, false otherwise (only if setFailState is set to false)
  */
-stock File_LoadTranslations(const String:file[], setFailState=true)
+stock bool File_LoadTranslations(const char[] file, bool setFailState=true)
 {
-	decl String:path[PLATFORM_MAX_PATH];
+	char path[PLATFORM_MAX_PATH];
 
 	BuildPath(Path_SM, path, sizeof(path), "translations/%s", file);
 
@@ -283,7 +281,7 @@ stock File_LoadTranslations(const String:file[], setFailState=true)
 		return true;
 	}
 
-	Format(path,sizeof(path), "%s.txt", path);
+	Format(path, sizeof(path), "%s.txt", path);
 
 	if (!FileExists(path)) {
 
@@ -307,16 +305,16 @@ stock File_LoadTranslations(const String:file[], setFailState=true)
  * @param size		If -1, reads until a null terminator is encountered in the file.  Otherwise, read_count bytes are read into the buffer provided.  In this case the buffer is not explicitly null terminated, and the buffer will contain any null terminators read from the file.
  * @return			Number of characters written to the buffer, or -1 if an error was encountered.
  */
-stock File_ToString(const String:path[], String:buffer[], size)
+stock int File_ToString(const char[] path, char[] buffer, int size)
 {
-	new Handle:file = OpenFile(path, "rb");
+	Handle file = OpenFile(path, "rb");
 
 	if (file == INVALID_HANDLE) {
 		buffer[0] = '\0';
 		return -1;
 	}
 
-	new num_bytes_written = ReadFileString(file, buffer, size);
+	int num_bytes_written = ReadFileString(file, buffer, size);
 	CloseHandle(file);
 
 	return num_bytes_written;
@@ -329,15 +327,15 @@ stock File_ToString(const String:path[], String:buffer[], size)
  * @param str		String to write
  * @return			True on success, false otherwise
  */
-stock bool:File_StringToFile(const String:path[], String:str[])
+stock bool File_StringToFile(const char[] path, char[] str)
 {
-	new Handle:file = OpenFile(path, "wb");
+	Handle file = OpenFile(path, "wb");
 
 	if (file == INVALID_HANDLE) {
 		return false;
 	}
 
-	new bool:success = WriteFileString(file, str, false);
+	bool success = WriteFileString(file, str, false);
 	CloseHandle(file);
 
 	return success;
@@ -351,23 +349,23 @@ stock bool:File_StringToFile(const String:path[], String:str[])
  * @param source		Input file
  * @param destination	Output file
  */
-stock bool:File_Copy(const String:source[], const String:destination[])
+stock bool File_Copy(const char[] source, const char[] destination)
 {
-	new Handle:file_source = OpenFile(source, "rb");
+	Handle file_source = OpenFile(source, "rb");
 
 	if (file_source == INVALID_HANDLE) {
 		return false;
 	}
 
-	new Handle:file_destination = OpenFile(destination, "wb");
+	Handle file_destination = OpenFile(destination, "wb");
 
 	if (file_destination == INVALID_HANDLE) {
 		CloseHandle(file_source);
 		return false;
 	}
 
-	new buffer[32];
-	new cache;
+	int buffer[32];
+	int cache;
 
 	while (!IsEndOfFile(file_source)) {
 		cache = ReadFile(file_source, buffer, 32, 1);
@@ -391,8 +389,9 @@ stock bool:File_Copy(const String:source[], const String:destination[])
  * @param destination	Destination directory (This can only be a directory)
  * @param stop_on_error	Optional: Set to true to stop on error (ie can't read a file)
  * @param dirMode		Optional: File mode for directories that will be created (Default = 0755), don't forget to convert FROM octal
+ * @return				True on success, false otherwise
  */
-stock bool:File_CopyRecursive(const String:path[], const String:destination[], bool:stop_on_error=false, dirMode=493)
+stock bool File_CopyRecursive(const char[] path, const char[] destination, bool stop_on_error=false, int dirMode=493)
 {
 	if (FileExists(path)) {
 		return File_Copy(path, destination);
@@ -405,7 +404,7 @@ stock bool:File_CopyRecursive(const String:path[], const String:destination[], b
 	}
 }
 
-static stock bool:Sub_File_CopyRecursive(const String:path[], const String:destination[], bool:stop_on_error=false, FileType:fileType, dirMode)
+static stock bool Sub_File_CopyRecursive(const char[] path, const char[] destination, bool stop_on_error=false, FileType fileType, int dirMode)
 {
 	if (fileType == FileType_File) {
 		return File_Copy(path, destination);
@@ -416,16 +415,15 @@ static stock bool:Sub_File_CopyRecursive(const String:path[], const String:desti
 			return false;
 		}
 
-		new Handle:directory = OpenDirectory(path);
+		Handle directory = OpenDirectory(path);
 
 		if (directory == INVALID_HANDLE) {
 			return false;
 		}
 
-		decl
-			String:source_buffer[PLATFORM_MAX_PATH],
-			String:destination_buffer[PLATFORM_MAX_PATH];
-		new FileType:type;
+		char source_buffer[PLATFORM_MAX_PATH],
+			 destination_buffer[PLATFORM_MAX_PATH];
+		FileType type;
 
 		while (ReadDirEntry(directory, source_buffer, sizeof(source_buffer), type)) {
 

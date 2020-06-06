@@ -29,6 +29,20 @@
  * 	color_subjecttype	(see ChatColorSubjectType enum in colors.inc, any value higher than 0 defines a team color)
  */
 
+
+
+
+
+
+
+// Needs an update? I dont know...
+
+
+
+
+
+
+
 "Games"
 {
 	/* Default */

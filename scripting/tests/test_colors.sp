@@ -1,5 +1,3 @@
-
-// enforce semicolons after each code statement
 #pragma semicolon 1
 
 #include <sourcemod>
@@ -18,7 +16,7 @@
 
 *****************************************************************/
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
 	name = "smlib - color tests",
 	author = "Berni",
 	description = "",
@@ -50,13 +48,13 @@ public Plugin:myinfo = {
 
 *****************************************************************/
 
-public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
     MarkNativeAsOptional("GetUserMessageType");
     return APLRes_Success;
 }
 
-public OnPluginStart()
+public void OnPluginStart()
 {
 	Client_PrintToChatAll(false, "Loading plugin test-colors compiled on %s %s", __DATE__, __TIME__);
 	RegAdminCmd("sm_testcolors", Command_TestColors, ADMFLAG_ROOT);
@@ -72,9 +70,9 @@ public OnPluginStart()
 
 ****************************************************************/
 
-public Action:Command_TestColors(client, args)
+public Action Command_TestColors(int client, int args)
 {
-	decl String:arguments[255];
+	char arguments[255];
 
 	GetCmdArgString(arguments, sizeof(arguments));
 	Client_PrintToChat(client, true, "%s", arguments);
